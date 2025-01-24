@@ -1,0 +1,226 @@
+{% extends 'dashboard_base.html' %}
+
+{% load static %}
+
+<!-- Styles -->
+{% block style %}
+
+<link rel="stylesheet" href="{% static 'css/card.css' %}">
+
+<style>
+    .no-wrap {
+        white-space: nowrap;
+    }
+</style>
+
+{% endblock %}
+
+<!-- Main Content -->
+{% block content %}
+
+<main class="content mt-0">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+
+        <h1 style="text-transform: capitalize;" class="h3 mb-0"> <b>Welcome, <span
+                    style="text-transform: capitalize;">{{user.first_name}}!👋</span></b> </h1>
+        {% if user.get_profile_image_url %}
+        <a href="" class="d-inline-block">
+            <img src="{{user.get_profile_image_url}}"
+                style="border-radius: 50%; object-fit: cover; border: 2px solid #222296;" class="avatar me-1"
+                alt="{{user.get_user_fullname}}" />
+        </a>
+        {% endif %}
+
+    </div>
+
+    <div class="container-fluid p-0">
+
+        <p>Here's a summary of all your earnings.</p>
+
+        <div class="w-100">
+            <div class="row">
+                <!-- Total Balance -->
+                <div class="col-12 col-sm-6 col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col mt-0">
+                                    <h5 class="card-title">AVAILABLE BALANCE</h5>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="stat text-primary">
+                                        <i class="align-middle" data-feather="dollar-sign"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <h1 class="mt-1 mb-3 text-md" style="font-size: 19px !important;">
+                                {{user.preferred_currency}} {{user.available_balance}}</h1>
+
+                            <!-- <p style="display: inline; font-weight: 900;"
+                                class="p-0">{{user.program_type}}</p> -->
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col mt-0">
+                                    <h5 class="card-title">CAPITAL</h5>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="stat text-primary">
+                                        <i class="align-middle" data-feather="trending-down"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <h1 class="mt-1 mb-3 text-md" style="font-size: 19px !important;">
+                                {{user.preferred_currency}} {{user.capital}}</h1>
+
+                            <!-- <a href="" style="text-decoration: underline;"
+                                class="btn btn-link p-0">View Investments</a> -->
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col mt-0">
+                                    <h5 class="card-title">ROI</h5>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="stat text-primary">
+                                        <i class="align-middle" data-feather="trending-up"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <h1 class="mt-1 mb-3 text-md" style="font-size: 19px !important;">
+                                {{user.preferred_currency}} {{user.roi}}</h1>
+
+                            <!-- <a href="" style="text-decoration: underline;"
+                                class="btn btn-link p-0">View Investments</a> -->
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-sm-6 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col mt-0">
+                                    <h5 class="card-title">BONUS</h5>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="stat text-primary">
+                                        <i class="align-middle" data-feather="gift"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <h1 class="mt-1 mb-3 text-md" style="font-size: 19px !important;">
+                                {{user.preferred_currency}} {{user.bonus}}</h1>
+
+                            <!-- <a href="" style="text-decoration: underline;"
+                                                class="btn btn-link p-0">View Investments</a> -->
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col mt-0">
+                                    <h5 class="card-title">Program Type</h5>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="stat text-primary">
+                                        <i class="align-middle" data-feather="activity"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <h1 class="mt-1 mb-3 text-md" style="font-size: 19px !important; font-weight: 900;">
+                                {{user.program_type}}</h1>
+
+                            <!-- <a href="" style="text-decoration: underline;"
+                                                class="btn btn-link p-0">View Investments</a> -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <h1 class="h3 mb-3 mt-3"><strong>Chart Data</strong> </h1>
+        <div class="card">
+            <div class="card-body">
+                <iframe src="https://fxpricing.com/fx-widget/market-currency-rates-widget.php?id=1,2,3,5,14,20"
+                    width="100%" height="290" style="border: 1px solid #eee;"></iframe>
+                <div id="fx-pricing-widget-copyright"> <span>Powered by </span><a href="https://fxpricing.com/"
+                        target="_blank">FX Pricing</a> </div>
+                <style type="text/css">
+                    #fx-pricing-widget-copyright {
+                        text-align: center;
+                        font-size: 13px;
+                        font-family: sans-serif;
+                        margin-top: 10px;
+                        margin-bottom: 10px;
+                        color: #9db2bd;
+                    }
+
+                    #fx-pricing-widget-copyright a {
+                        text-decoration: unset;
+                        color: #bb3534;
+                        font-weight: 600;
+                    }
+                </style>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <iframe
+                    src="https://fxpricing.com/fx-widget/ticker-tape-widget.php?id=1,2,3,5,14,20&d_mode=compact-name"
+                    width="100%" height="85" style="border: unset;"></iframe>
+                <div id="fx-pricing-widget-copyright"> <span>Powered by </span><a href="https://fxpricing.com/"
+                        target="_blank">FX Pricing</a> </div>
+                <style type="text/css">
+                    #fx-pricing-widget-copyright {
+                        text-align: center;
+                        font-size: 13px;
+                        font-family: sans-serif;
+                        margin-top: 10px;
+                        margin-bottom: 10px;
+                        color: #9db2bd;
+                    }
+
+                    #fx-pricing-widget-copyright a {
+                        text-decoration: unset;
+                        color: #bb3534;
+                        font-weight: 600;
+                    }
+                </style>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+{% endblock %}
+
+
+
+<!-- Script -->
+{% block script %}
+<script>
+
+</script>
+{% endblock %}

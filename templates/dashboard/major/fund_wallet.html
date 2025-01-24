@@ -1,0 +1,106 @@
+{% extends 'dashboard_base.html' %}
+
+{% load static %}
+
+<!-- Styles -->
+{% block style %}
+
+<link rel="stylesheet" href="{% static 'css/card.css' %}">
+
+<style>
+    .no-wrap {
+        white-space: nowrap;
+    }
+</style>
+
+{% endblock %}
+
+<!-- Main Content -->
+{% block content %}
+
+
+<main class="content mt-0">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+
+        <h1 style="text-transform: capitalize;" class="h3 mb-0"> <b><span style="text-transform: capitalize;">Fund
+                    Wallet</span></b> </h1>
+
+
+    </div>
+
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+
+                    <div id="message" class="p-2"></div>
+                    <div class="card-body">
+                        <form id="createCardForm">
+
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount <span class="asterisks">*</span>
+                                </label>
+                                <div class="input-group ">
+                                    <input type="number" class="form-control" id="amount" name="amount"
+                                        aria-label="Amount (to the nearest dollar)" required>
+                                    <div class="input-group-append">
+                                        <span style="border-radius: 0px !important;" class="input-group-text">.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-sm-12">
+                                <label for="payment_method" class="form-label">Method of Payment <span
+                                        class="asterisks">*</span></label>
+                                <select id="payment_method" required name="payment_method" class="form-select" required
+                                    aria-label="Default select example">
+                                    {% for payment_method in payment_method %}
+                                    <option style="text-transform: capitalize;" value="{{payment_method}}">
+                                        {{payment_method}}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                            <div class="mb-3 col-sm-12">
+                                <label for="currency" class="form-label">Preferred Currency <span
+                                        class="asterisks">*</span></label>
+                                <select id="currency" required name="currency" class="form-select" required
+                                    aria-label="Default select example">
+                                    {% for currency in currencies %}
+                                    <option style="text-transform: capitalize;" value="{{currency}}">
+                                        {{currency}}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Send Deposit Request</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Loan Guidelines</h5>
+                        <ul>
+                            <li>Ensure you meet the minimum income requirements before applying.</li>
+                            <li>Loan terms and conditions apply based on your credit score.</li>
+                            <li>Provide accurate information to avoid delays in processing.</li>
+                            <li>Interest rates vary by loan type and duration.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+
+
+<!-- Script -->
+{% block script %}
+<script>
+
+</script>
+{% endblock %}

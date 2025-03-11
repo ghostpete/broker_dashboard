@@ -1,5 +1,6 @@
 {% extends 'dashboard_base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block style %}
 
@@ -55,12 +56,20 @@
 
                             <div class="col-md-6">
                                 <p class="mb-2"><strong>Prefered Currency:</strong></p>
-                                <p class="text-muted" >{{user.preferred_currency}}</p>
+                                <p class="text-muted">{{user.preferred_currency}}</p>
                             </div>
+                            {% if user.gender %}
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Gender:</strong></p>
+                                <p class="text-muted">{{user.gender}}</p>
+                            </div>
+                            {% endif %}
                             {% if user.annual_income %}
                             <div class="col-md-6">
                                 <p class="mb-2"><strong>Annual Income:</strong></p>
-                                <p class="text-muted">${{user.annual_income}}</p>
+                                <p class="text-muted">
+                                    {{user.preferred_currency}} {{user.annual_income|floatformat:2|intcomma}}
+                                </p>
                             </div>
                             {% endif %}
 

@@ -18,6 +18,9 @@ import json
 #     send_contact_mail,
 # )
 
+
+
+
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 
@@ -33,9 +36,12 @@ from app.models import (
     Payment, 
     CustomUser, 
     Notification, 
-    Transaction, 
-    Support
+    AdminWallet,
+    Support,
+    CustomerPaymentInformation,
+    Investment,
 )
+# 
 
 from django.contrib.auth import get_user_model
 
@@ -61,6 +67,7 @@ from django.conf import settings
 
 
 User = CustomUser
+
 
 
 
@@ -297,4 +304,230 @@ def clear_user_notification(request):
         "message": f"{updated_count} notifications have been marked as read!",
         "count": updated_count
     })
+
+
+
+@api_view(['POST'])
+def KYCAPIView(request):
+    data = request.data
+    files = request.FILES
+    
+    print(data)
+
+    marital_choice = data.get('marital_choice')
+    number_of_dependents = data.get('number_of_dependents')
+    employment_type = data.get('employment_type')
+    employment_status = data.get('employment_status')
+    
+    citizenship_status = data.get('citizenship_status')
+    ssn = data.get('ssn')
+    tax_identity_number = data.get('tax_identity_number')
+    government_id_type = data.get('government_id_type')
+    government_id_number = data.get('government_id_number')
+
+    proof_of_employment = files.get('proof_of_employment')
+    proof_of_income = files.get('proof_of_income')
+    front_id_image = files.get('front_id_image')
+    back_id_image = files.get('back_id_image')
+    image_holding_id = files.get('image_holding_id')
+
+    try:
+        kyc_details = KYC(
+            user=request.user,
+            marital_choice=marital_choice,
+            number_of_dependents=number_of_dependents,
+            employment_status=employment_status,
+            employment_type=employment_type,
+            citizenship_status=citizenship_status,
+            ssn=ssn,
+            tax_identity_number=tax_identity_number,
+            government_id_type=government_id_type,
+            government_id_number=government_id_number,
+            proof_of_employment=proof_of_employment,
+            proof_of_income=proof_of_income,
+            front_id_image=front_id_image,
+            back_id_image=back_id_image,
+            image_holding_id=image_holding_id,
+        )
+
+        request.user.has_submitted_kyc = True
+
+        request.user.save()
+        kyc_details.save()
+
+        return Response({
+            "message": "KYC is being evaluated. We will contact you in due time once your documents have been reviewed.", 
+            "success": True
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(e)
+        return Response({"message": "We encountered a problem while updating your KYC. Please try again later."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+@api_view(['POST'])
+def update_payment_information_api(request):
+
+    user = request.user
+    
+    payment_type = request.data.get("payment_type")
+    address = request.data.get("address")
+
+    try:
+        customer_payment_info = CustomerPaymentInformation.objects.filter(user=user).first()
+        # Check if user already has a CustomerPaymentInformation instance
+        if customer_payment_info:
+            customer_payment_info.payment_type = payment_type
+            customer_payment_info.payment_address = address
+            customer_payment_info.save()
+            return Response({"message": "Payment Information Updated Successfully. ", "success": True}, status=status.HTTP_200_OK)
+        else:
+            CustomerPaymentInformation.objects.create(
+                user=user,
+                payment_type=payment_type,
+                payment_address=address
+            )
+            return Response({"message": "Payment Information Created Successfully. ", "success": True}, status=status.HTTP_200_OK)
+    except:
+        return Response({"error": "Unable to update payment information. Please try again later. ", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def get_wallet_address(request, wallet_type):
+    try:
+        wallet = AdminWallet.objects.get(wallet_type=wallet_type)
+        return Response({"wallet_address": wallet.wallet_address}, status=200)
+    except AdminWallet.DoesNotExist:
+        return Response({"error": "Wallet type not found"}, status=404)
+
+@api_view(['POST'])
+def funding_account_request_api(request):
+    user = request.user
+
+    if request.method == 'POST':
+        amount = request.data.get("amount")
+        transaction_type = request.data.get("transaction_type")
+        confirmation_receipt = request.FILES.get("confirmation_receipt")
+        payment_method = request.data.get("payment_method")
+        wallet = request.data.get("wallet")
+
+        print(request.data)
+
+        Payment.objects.create(
+            user=user,
+            amount=amount,
+            transaction_type="FUNDING",
+            confirmation_receipt=confirmation_receipt,
+            payment_method=payment_method,
+            wallet=wallet
+        )
+        return Response({"message": "Your payment receipt has been uploaded and is currently being reviewed. Your account will be funded after confirmation! ", "success": True}, status=status.HTTP_200_OK) 
+
+    else:
+        return Response({
+            "message": "Invalid request method. Only POST is allowed.", 
+            "success": True}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    
+    
+@api_view(['POST'])
+def withdrawal_request_api(request):
+
+    user = request.user
+
+    
+
+    if request.method == 'POST':
+        user_roi = user.roi
+        user_capital = user.capital
+        user_bonus = user.bonus
+
+
+        amount = int(request.data.get("amount"))
+        payment_method = request.data.get("payment_method")
+        withdraw_source = request.data.get("withdraw_source")
+
+        if withdraw_source == "roi":
+            if amount > user_roi:
+                return Response({"message": "Insufficient ROI to withdraw", "success": False}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # user.roi -= amount
+                # user.save()
+                pass
+        elif withdraw_source == "capital":
+            if amount > user_capital:
+                return Response({"message": "Insufficient Capital to withdraw", "success": False}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # user.capital -= amount
+                # user.save()
+                pass
+        elif withdraw_source == "bonus":
+            if amount > user_bonus:
+                return Response({"message": "Insufficient Bonus to withdraw", "success": False}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # user.bonus -= amount
+                # user.save()
+                pass
+    
+        
+
+        print(request.data)
+        print(f"User ROI: {user_roi}; User Capital: {user_capital}; User Bonus: {user_bonus}")
+
+        Payment.objects.create(
+            user=user,
+            amount=amount,
+            payment_method=payment_method,
+            withdraw_source=withdraw_source,
+            transaction_type="WITHDRAWAL",
+        )
+
+
+    return Response({
+            "message": "Sorry, you have a pending transaction. ", 
+            "success": True}, status=status.HTTP_200_OK) 
+
+
+
+    
+@api_view(['POST'])
+def investment_create_request_api(request):
+    user = request.user
+    print(request.data)
+    amount = request.data.get("amount")
+    investment_type = request.data.get("investment")
+    try:
+        int_amount = int(amount)
+        user.investment += int_amount
+        user.save()
+    except ValueError as e:
+        print(e)
+        Response({"message": "Enter a valid number for amount ", "success": False}, status.HTTP_400_BAD_REQUEST)
+
+    Investment.objects.create(
+        user=user,
+        amount=amount,
+        investment_type=investment_type,
+    )
+    return Response({"message": "Investment was seccussful. ", "success": True}, status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

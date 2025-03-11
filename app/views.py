@@ -27,11 +27,15 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-
+from .models import Plans
 
 from .models import (
     Support,
-    Notification
+    Notification,
+    AdminWallet,
+    Payment,
+    Investment,
+
 )
 
 User = get_user_model()
@@ -41,6 +45,13 @@ from .constants import (
     MARITAL_CHOICES,
     PREFERRED_CURRENCY,
     PROGRAM_TYPES,
+    ACCOUNT_TYPES,
+    EMPLOYMENT_STATUS,
+    EMPLOYMENT_TYPE,
+    PREFERRED_ID_TYPE,
+    PAYMENT_TYPES,
+    PAYMENT_METHODS,
+    INVESTMENT_TYPES,
 )
 
 
@@ -50,6 +61,8 @@ from .constants import (
 # -------------------------------- WEBSITE PAGES-------------------------------------
 def home_page(request):
     return render(request, "website/index.html", {} )
+def about_page(request):
+    return render(request, "website/company.html", {} )
 
 
 
@@ -90,10 +103,9 @@ def password_reset_request(request):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             reset_url = request.build_absolute_uri(f'/password-reset/{uid}/{token}/')
-            print("Reset Email link: ", reset_email_url, "  -  ", reset_url)
             
             # send_password_reset_email(to_email=user.email, reset_link=reset_url)
-            return JsonResponse({'success': 'Password reset email sent'})
+            return JsonResponse({'success': 'Password reset link was sent to your email'})
         else:
             return JsonResponse({'error': 'Email address not found'}, status=404)
     return render(request, 'dashboard/auth/password_reset_form.html')
@@ -140,7 +152,14 @@ def dashboard_home(request):
     return render(request, "dashboard/major/index.html", {
         "notifications": notifications,
          "notification_count": notifications.count(),
-    } )
+    })
+@login_required
+def monitor_investment(request):
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    return render(request, "dashboard/major/monitor_investment.html", {
+        "notifications": notifications,
+         "notification_count": notifications.count(),
+    })
 
 @login_required
 def chart_analysis(request):
@@ -153,18 +172,52 @@ def chart_analysis(request):
 @login_required
 def fund_wallet(request):
     notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    admin_wallets = AdminWallet.objects.all()
+    
     return render(request, "dashboard/major/fund_wallet.html", {
         "notifications": notifications,
-         "notification_count": notifications.count(),
-        "currencies": PREFERRED_CURRENCY
+        "notification_count": notifications.count(),
+        "currencies": PREFERRED_CURRENCY,
+        "admin_wallets": admin_wallets,
     } )
+
+
+@login_required
+def withdraw_fund_wallet(request):
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+
+    return render(request, "dashboard/major/withdraw.html", {
+        "notifications": notifications,
+         "notification_count": notifications.count(),
+        "currencies": PREFERRED_CURRENCY,
+        "payment_methods": PAYMENT_METHODS,
+    })
 
 @login_required
 def transactions(request):
     notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    
+    deposits = Payment.objects.filter(user=request.user).filter(transaction_type="FUNDING").order_by("-id")
+    withdrawals = Payment.objects.filter(user=request.user).filter(transaction_type="WITHDRAWAL").order_by("-id")
+    investments = Investment.objects.filter(user=request.user).order_by("-id")
     return render(request, "dashboard/major/transactions.html", {
         "notifications": notifications,
          "notification_count": notifications.count(),
+         "deposits": deposits,
+         "withdrawals": withdrawals,
+         "investments": investments,
+    })
+
+
+@login_required
+def investment_create(request):
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    
+    
+    return render(request, "dashboard/major/investment_create.html", {
+        "notifications": notifications,
+         "notification_count": notifications.count(),
+         "investment_options": INVESTMENT_TYPES,
     })
 
 
@@ -175,7 +228,7 @@ def profile_details(request):
     return render(request, "dashboard/major/profile.html", {
         "notifications": notifications,  
         "notification_count": notifications.count(),
-        })
+    })
 
 
 @login_required
@@ -184,22 +237,21 @@ def profile_settings(request):
     return render(request, "dashboard/major/profile_settings.html", {
         "notifications": notifications,  
         "notification_count": notifications.count(),
-        })
+    })
 
 
 
 @login_required
 def support_page(request):
 
-    notifications = Notification.objects.filter(user=request.user).order_by("-id")[:5]
-    read_notifications = Notification.objects.filter(user=request.user).filter(is_read=True).order_by("-id")[:5]
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
 
     supports = Support.objects.filter(user=request.user).order_by("-id")[:5]
 
     return render(request, "dashboard/major/support.html", {
         "supports": supports,"notifications": notifications, 
         "notification_count": notifications.count(),
-        })
+    })
     
 
 
@@ -212,11 +264,66 @@ def notification_page(request):
         "notifications": notifications, 
         "notification_count": notifications.count(), 
         "all_notifications": all_notifications
+    })
+
+@login_required
+def update_kyc(request):
+    if request.user.has_verified_kyc:
+        return redirect("dashboard_home")
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    return render(request, "dashboard/major/kyc_page.html", {
+            "employment_statuses": EMPLOYMENT_STATUS,
+            "account_types": ACCOUNT_TYPES,
+            "all_id_types": PREFERRED_ID_TYPE,
+            "citizenship_statuses": CITIZENSHIP_STATUSES,
+            "employment_types": EMPLOYMENT_TYPE,
+            "marital_choices": MARITAL_CHOICES,
+            "notifications": notifications, 
+            "notification_count": notifications.count(), 
+        })
+
+@login_required
+def investment_plans(request):
+    
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    plans = Plans.objects.all().order_by("id")
+
+    return render(request, "dashboard/major/plans.html", {
+            "employment_statuses": EMPLOYMENT_STATUS,
+            "account_types": ACCOUNT_TYPES,
+            "all_id_types": PREFERRED_ID_TYPE,
+            "citizenship_statuses": CITIZENSHIP_STATUSES,
+            "employment_types": EMPLOYMENT_TYPE,
+            "marital_choices": MARITAL_CHOICES,
+            "notifications": notifications, 
+            "notification_count": notifications.count(),
+            "plans": plans,
         })
 
 
+def investment_plan_detail(request, pk):
+    try:
+        plan = Plans.objects.get(id=pk)
+    except Plans.DoesNotExist:
+        raise Http404
+    
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    return render(request, "dashboard/major/plan_detail_payment.html", {
+            "notifications": notifications, 
+            "notification_count": notifications.count(),
+            "plan": plan,
+            "payment_options": PAYMENT_TYPES,
+
+        })
 
 
+def update_payment_information_view(request):
+    notifications = Notification.objects.filter(user=request.user).filter(is_read=False).order_by("-id")[:5]
+    return render(request, "dashboard/major/update_payment_information_page.html", {
+        "notifications": notifications, 
+        "notification_count": notifications.count(),
+        "payment_options": PAYMENT_TYPES
+    })
 # -------------------------------------------------------------------------------------
 
 

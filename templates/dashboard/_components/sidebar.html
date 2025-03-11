@@ -5,10 +5,9 @@
 <nav id="sidebar" class="sidebar js-sidebar bg-primary">
     <div class="sidebar-content js-simplebar bg-bank-primary pb-5">
         <a class="sidebar-brand" href="">
-            <img width="35" class="fcb-image__image"
-                src="https://res.cloudinary.com/daf9tr3lf/image/upload/v1736086632/2_gkrvjy.png" alt="Broker Logo"
+            <img height="70" class="fcb-image__image" src="{% static 'img/resized_halal.png' %}" alt="Broker Logo"
                 data-trackable="true" data-asset-id="dc55e3cd-91af-480a-b6da-ccc2cb83406d" loading="lazy" tabindex="0">
-            <span class="align-middle">Broker</span>
+
         </a>
 
         <ul class="sidebar-nav">
@@ -20,6 +19,14 @@
                 <a class="sidebar-link bg-bank-primary" href="{% url 'dashboard_home' %}">
                     <i class="align-middle" data-feather="home"></i>
                     <span class="align-middle">Dashboard</span>
+                </a>
+            </li>
+
+
+            <li class="sidebar-item bg-bank-primary">
+                <a class="sidebar-link bg-bank-primary" href="{% url 'monitor_investment' %}">
+                    <i class="align-middle" data-feather="box"></i>
+                    <span class="align-middle">Monitor Investment</span>
                 </a>
             </li>
 
@@ -43,19 +50,20 @@
                     <span class="align-middle">Fund Wallet</span>
                 </a>
             </li>
+            <li class="sidebar-item bg-bank-primary">
+                <a class="sidebar-link bg-bank-primary" href="{% url 'investment_create' %}">
+                    <i class="align-middle" data-feather="send"></i>
+                    <span class="align-middle">Investment</span>
+                </a>
+            </li>
 
             <li class="sidebar-item bg-bank-primary">
-                <a class="sidebar-link bg-bank-primary" href="{% url 'fund_wallet' %}">
+                <a class="sidebar-link bg-bank-primary" href="{% url 'withdraw_fund_wallet' %}">
                     <i class="align-middle" data-feather="git-pull-request"></i>
                     <span class="align-middle">Withdraw</span>
                 </a>
             </li>
-            <li class="sidebar-item bg-bank-primary">
-                <a class="sidebar-link bg-bank-primary" href="{% url 'fund_wallet' %}">
-                    <i class="align-middle" data-feather="box"></i>
-                    <span class="align-middle">Plans</span>
-                </a>
-            </li>
+
 
 
 
@@ -92,6 +100,12 @@
                 <a class="sidebar-link bg-bank-primary" href="{% url 'profile_settings' %}">
                     <i class="align-middle" data-feather="settings"></i>
                     <span class="align-middle">Account Settings</span>
+                </a>
+            </li>
+            <li class="sidebar-item bg-bank-primary">
+                <a class="sidebar-link bg-bank-primary" href="{% url 'update_payment_information_view' %}">
+                    <i class="align-middle" data-feather="dollar-sign"></i>
+                    <span class="align-middle">Payment Information</span>
                 </a>
             </li>
 

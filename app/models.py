@@ -16,6 +16,14 @@ from django.dispatch import receiver
 
 # Create your models here.
 
+PAYMENT_TYPES = [
+    ("WALLET", "WALLET"),
+    ("BTC", "BTC"),
+    ("ETH", "ETH"),
+    ("CASH APP", "CASH APP"),
+    ("PAYPAL", "PAYPAL")
+]
+
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
@@ -62,6 +70,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     capital = models.DecimalField(verbose_name="Capital", max_digits=12, decimal_places=2, default=0.00)
     roi = models.DecimalField(verbose_name="ROI", max_digits=12, decimal_places=2, default=0.00)
     bonus = models.DecimalField(verbose_name="Bonus", max_digits=12, decimal_places=2, default=0.00)
+    investment = models.DecimalField(verbose_name="Bonus", max_digits=12, decimal_places=2, default=0.00)
+    # program_bonus = models.DecimalField(verbose_name="Bonus", max_digits=12, decimal_places=2, default=0.00)
 
     program_type = models.CharField(max_length=100, blank=True, null=True, choices=PROGRAM_TYPES, default="Short-Term")
 
@@ -70,7 +80,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
 
     # User has verified KYC
-    is_verified = models.BooleanField(verbose_name="KYC Verified", default=False)
+    # is_verified = models.BooleanField(verbose_name="KYC Verified", default=False)
+
+    has_verified_kyc = models.BooleanField(verbose_name="User is verified", default=False, help_text="Tick if user has undergone KYC Verification and has been approved.")
+    has_submitted_kyc = models.BooleanField(help_text="This means that user has submitted verification for KYC", default=False, )
 
 
     objects = CustomUserManager()
@@ -110,65 +123,31 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class KYC(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE) 
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    marital_choice = models.CharField(max_length=100, blank=True, null=True)
+    number_of_dependents = models.IntegerField(default=0)
+    employment_status = models.CharField(max_length=100, blank=True, null=True)
+    employment_type = models.CharField(max_length=100, blank=True, null=True)
+    citizenship_status = models.CharField(max_length=100, blank=True, null=True)
+    ssn = models.CharField(max_length=100, blank=True, null=True)
+    tax_identity_number = models.CharField(max_length=100, blank=True, null=True)
+    government_id_type = models.CharField(max_length=100, blank=True, null=True)
+    government_id_number = models.CharField(max_length=100, blank=True, null=True)
+    proof_of_employment = models.FileField(upload_to="identity/proof", blank=True, null=True)
+    proof_of_income = models.FileField(upload_to="identity/proof", blank=True, null=True)
+    front_id_image = models.FileField(upload_to="identity/proof", blank=True, null=True)
+    back_id_image = models.FileField(upload_to="identity/proof", blank=True, null=True)
+    image_holding_id = models.FileField(upload_to="identity/proof", blank=True, null=True)
 
-    PREFERRED_ID_TYPE = [
-        ("Driver Licence", 'Driver Licence'),
-        ("National ID", 'National ID'),
-        ("Passport", 'Passport'),
-    ]
 
-    MARITAL_CHOICES = [
-        ("Married", 'Married'),
-        ("Single", 'Single'),
-        ("Divorced", 'Divorced'),
-    ]
-
-    # GOVERNMENT ID 
-    government_id_type = models.CharField(max_length=200, blank=True, null=True, choices=PREFERRED_ID_TYPE)
-    government_id_number = models.CharField(max_length=200, blank=True, null=True)
-    front_id_image = models.FileField(upload_to="identity/images", blank=True, null=True)
-    back_id_image = models.FileField(upload_to="identity/images", blank=True, null=True)
+    def __str__(self):
+        return self.user.email + " " + "KYC Details."
     
-    utility_bill = models.FileField(upload_to="identity/proof/utility", blank=True, null=True)
-    
-    ssn = models.CharField(max_length=500, blank=True, null=True)
-
-    citizenship_status = models.CharField(max_length=50, choices=[
-        ('US Citizen', 'US Citizen'), 
-        ('Non-US Citizen', 'Non-US Citizen')
-    ])
-
     class Meta:
         verbose_name_plural = "KYC"
         verbose_name = "KYC"
 
 
-class Transaction(models.Model):
-    TRANSACTION_TYPES = (
-        ('DEPOSIT REQUEST', 'DEPOSIT REQUEST'),
-        ('WITHDRAWAL', 'WITHDRAWAL'),
-    )
-
-    TRANSACTION_STATUS = [
-        ("Pending", "Pending"),
-        ("Successful", "Successful"),
-        ("Rejected", "Rejected")
-    ]
-
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE) 
-
-    transaction_type = models.CharField(max_length=100, choices=TRANSACTION_TYPES)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=TRANSACTION_STATUS, default='Pending')
-
-    def __str__(self):
-        return f"{self.transaction_type} - {self.amount}"
-    
-    class Meta:
-        verbose_name_plural = "Transactions"
-        verbose_name = "Transaction"
 
 
 class Notification(models.Model):
@@ -215,45 +194,106 @@ class Support(models.Model):
 class Payment(models.Model):
     
     TRANSACTION_TYPES = (
-        ('DEPOSIT REQUEST', 'DEPOSIT REQUEST'),
+        ('FUNDING', 'FUNDING'),
         ('WITHDRAWAL', 'WITHDRAWAL'),
     )
-    PAYMENT_METHOD = [
-        ("bank", "bank"),
-        ("crypto", "crypto"),
-        ("paypal", "paypal"),
-        ("cashapp", "cashapp"),
+    STATUS = [
+        ("Pending", "Pending"),
+        ("Success", "Success"),
     ]
+    
+    date = models.DateField(auto_now_add=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     transaction_type = models.CharField(max_length=400, blank=True, null=False, choices=TRANSACTION_TYPES)
-    amount = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
+    amount = models.IntegerField(blank=True, null=True)
     confirmation_receipt = models.FileField(upload_to='receipts/', null=True, blank=True)
-    payment_method = models.CharField(max_length=400, blank=True, null=False, choices=PAYMENT_METHOD)
-    is_tax = models.BooleanField(default=False)
-    
+    payment_method = models.CharField(max_length=400, blank=True, null=True)
+    wallet = models.CharField(max_length=400, blank=True, null=True)
+    withdraw_source = models.CharField(max_length=400, blank=True, null=True)
+
+    status = models.CharField(max_length=400, blank=True, null=False, default="Pending", choices=STATUS)
+
     class Meta:
-        verbose_name = "Payment"
-        verbose_name_plural = "Payments"
+        verbose_name = "Transaction"
+        verbose_name_plural = "Transactions"
 
     def __str__(self) -> str:
-        return f"Received Payment from {self.user.email} in {self.payment_method}"
+        return f"Transaction by {self.user.email} ---- {self.transaction_type}"
 
 
+
+class Investment(models.Model):
+    INVESTMENT_TYPES = [
+        ("Basic Plan", "Basic Plan"),
+        ("Standard Plan", "Standard Plan"),
+        ("Premium Plan", "Premium Plan"),
+        ("Elite Plan", "Elite Plan"),
+    ]
+
+    STATUS = [
+        ("Pending", "Pending"),
+        ("Successful", "Successful"),
+    ]
+
+    date = models.DateField(auto_now_add=True)
+    amount = models.IntegerField(blank=True, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name="investments")
+    investment_type = models.CharField(max_length=400, blank=True, null=True, choices=INVESTMENT_TYPES)
+    status = models.CharField(max_length=400, blank=True, null=False, default="Pending", choices=STATUS)
+
+    class Meta:
+        verbose_name = "Investment"
+        verbose_name_plural = "Investments"
 
 class AdminPaymentMethod(models.Model):
-    PAYMENT_TYPES = [
-        ("CHOOSE WALLET", "CHOOSE WALLET"),
-        ("BTC", "BTC"),
-        ("ETH", "ETH"),
-        ("CASH APP", "CASH APP"),
-        ("PAYPAL", "PAYPAL")
-    ]
+    
     payment_type =  models.CharField(max_length=400, blank=True, null=False, choices=PAYMENT_TYPES)
     payment_address = models.CharField(max_length=400, blank=True, null=False)
 
     def __str__(self) -> str:
-        return f"{self.payment_type}" 
+        return f"{self.payment_type}"
 
+
+class Plans(models.Model):
+    plan_name = models.CharField(max_length=100, default="Universal Plan", blank=False, null=False)
+    minimum_deposit = models.DecimalField(verbose_name="Minimum Deposit", max_digits=12, decimal_places=2, default=0.00)
+    maximum_deposit = models.DecimalField(verbose_name="Maximum Deposit", max_digits=12, decimal_places=2, default=0.00)
+    term_duration = models.CharField(max_length=100, default="10 Days", blank=False, null=False)
+    payout_term = models.CharField(max_length=100, default="Term Basis", blank=False, null=False)
+    capital_return = models.CharField(max_length=100, default="End of Term", blank=False, null=False)
+    percentage_return = models.CharField(max_length=100, default="130%", blank=False, null=False)
+
+    def __str__(self):
+        return f"Investment Plan - {self.plan_name}".upper()
+    
+    class Meta:
+        verbose_name = "Investment Plan"
+        verbose_name_plural = "Investment Plans"
+
+
+class CustomerPaymentInformation(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    payment_type =  models.CharField(max_length=400, blank=True, null=False, choices=PAYMENT_TYPES)
+    payment_address = models.CharField(max_length=400, blank=True, null=False)
+
+    def __str__(self):
+        return f"Customer Payment Information for - {self.user.email}" 
+    
+    class Meta:
+        verbose_name = "Customer Payment Information"
+        verbose_name_plural = "Customer Payment Information"
+
+
+class AdminWallet(models.Model):
+    wallet_type =  models.CharField(max_length=400, blank=True, null=False)
+    wallet_address = models.CharField(max_length=400, blank=True, null=False)
+
+    def __str__(self):
+        return f"{self.wallet_type} --- {self.wallet_address}"
+    
+    class Meta:
+        verbose_name = "Admin Wallet"
+        verbose_name_plural = "Admin Wallets"
 
 
 

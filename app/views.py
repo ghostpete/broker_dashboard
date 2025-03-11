@@ -61,8 +61,30 @@ from .constants import (
 # -------------------------------- WEBSITE PAGES-------------------------------------
 def home_page(request):
     return render(request, "website/index.html", {} )
+
 def about_page(request):
     return render(request, "website/company.html", {} )
+
+def forex_page(request):
+    return render(request, "website/forex.html", {} )
+
+def loan_page(request):
+    return render(request, "website/loan.html", {} )
+
+def nft_page(request):
+    return render(request, "website/nft.html", {} )
+
+def oil_gas_page(request):
+    return render(request, "website/oilandgas.html", {} )
+
+def realestate_page(request):
+    return render(request, "website/realestate.html", {} )
+
+def retirement_page(request):
+    return render(request, "website/retirement.html", {} )
+
+def terms_page(request):
+    return render(request, "website/terms.html", {} )
 
 
 

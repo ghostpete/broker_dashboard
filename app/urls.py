@@ -7,6 +7,13 @@ urlpatterns = [
     # Website Views
     path('', views.home_page, name="home"),
     path('about/', views.about_page, name="about"),
+    path('forex/', views.forex_page, name="forex"),
+    path('loan/', views.loan_page, name="loan"),
+    path('nft/', views.nft_page, name="nft"),
+    path('oil-gas/', views.oil_gas_page, name="oil_gas"),
+    path('retirement/', views.retirement_page, name="retirement"),
+    path('terms/', views.terms_page, name="terms"),
+    path('realestate/', views.retirement_page, name="realestate"),
 
     # Auth Views
     path('login/', views.login, name="login"),

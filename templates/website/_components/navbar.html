@@ -33,7 +33,7 @@
                             <div class="navbar-header navbar-header-custom">
                                 <!-- start logo -->
                                 <a href="" class="navbar-brand logo2">
-                                    <img id="logo" src="{% static 'asset/images/logo_1660142232.png' %}" alt="logo"></a>
+                                    <img id="logo" src="https://res.cloudinary.com/daf9tr3lf/image/upload/v1741706174/halal_aehqvk.png" alt="logo"></a>
                                 <!-- end logo -->
                             </div>
 
@@ -41,19 +41,19 @@
 
                             <!-- menu area -->
                             <ul class="navbar-nav ml-auto" id="nav" style="display: none;">
-                                <li><a href="index-2.html">Home</a></li>
+                                <li><a href="{% url 'home' %}">Home</a></li>
                                 <li><a href="javascript:void(0)">Investments</a>
                                     <ul>
-                                        <li><a href="Forexs-2.html">Forexcurrencies</a></li>
-                                        <li><a href="realestate.html">Real Estate</a></li>
-                                        <li><a href="oilandgas.html">Oil And Gas</a></li>
-                                        <li><a href="nft.html">Non Fungible Token</a></li>
-                                        <li><a href="retirement.html">Retirement</a></li>
-                                        <li><a href="loan.html">Loan</a></li>
+                                        <li><a href="{% url 'forex' %}">Forexcurrencies</a></li>
+                                        <li><a href="{% url 'realestate' %}">Real Estate</a></li>
+                                        <li><a href="{% url 'oil_gas' %}">Oil And Gas</a></li>
+                                        <li><a href="{% url 'nft' %}">Non Fungible Token</a></li>
+                                        <li><a href="{% url 'retirement' %}">Retirement</a></li>
+                                        <li><a href="{% url 'loan' %}">Loan</a></li>
                                     </ul>
                                 </li>
                                 <!--<li><a href="https://www.shareite.com/pricing">Pricing</a></li>-->
-                                <li><a href="company.html">Company</a></li>
+                                <li><a href="{% url 'about' %}">Company</a></li>
                             </ul>
                             <!-- end menu area -->
 

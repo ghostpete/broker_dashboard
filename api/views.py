@@ -306,7 +306,6 @@ def clear_user_notification(request):
     })
 
 
-
 @api_view(['POST'])
 def KYCAPIView(request):
     data = request.data

@@ -92,13 +92,27 @@
 										</div>
 										<div class="mb-3">
 											<label class="form-label">Password<span class="asterisks">*</span></label>
-											<input class="form-control form-control-lg" type="password" name="password"
-												required />
-										</div>
+											<div class="input-group ">
 
-										<div>
-											<a href="{% url 'password_reset' %}">Forget Password</a>
+												<input class="form-control form-control-lg" type="password"
+													name="password" required />
+												<div class="input-group-append">
+													<button type="button"
+														style="border-radius: 0px !important; height: 100%;"
+														class="btn btn-light" id="togglePassword">
+														<img class="toggle-icon" style="width: 20px;"
+															src="{% static 'img/eye.svg' %}" alt="">
+														<img class="toggle-icon" style="width: 20px;"
+															src="{% static 'img/eye-slash.svg' %}" alt="">
+													</button>
+												</div>
+											</div>
+
 										</div>
+										<!--  forget password -->
+										<!-- <div>
+											<a href="{% url 'password_reset' %}">Forget Password</a>
+										</div> -->
 										<div class="d-grid gap-2 mt-3">
 											<button type="submit" class="btn btn-lg btn-primary" id="loginBtn">Sign
 												in</button>
@@ -164,6 +178,33 @@
 			}
 		}
 	</script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const togglePassword = document.getElementById("togglePassword");
+			const passwordInput = document.querySelector("input[name='password']");
+			const eyeIcons = togglePassword.querySelectorAll(".toggle-icon");
+
+			togglePassword.addEventListener("click", function () {
+				// Toggle password visibility
+				if (passwordInput.type === "password") {
+					passwordInput.type = "text";
+				} else {
+					passwordInput.type = "password";
+				}
+
+				// Toggle icons
+				eyeIcons.forEach(icon => {
+					icon.style.display = icon.style.display === "none" ? "inline" : "none";
+				});
+			});
+
+			// Ensure only one icon is visible at the start
+			eyeIcons[1].style.display = "none";
+		});
+	</script>
+
+	{% include 'dashboard/_components/live_chat_whatsapp_widget.html' %}
 
 </body>
 

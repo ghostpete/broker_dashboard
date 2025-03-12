@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -223,29 +224,55 @@
 
 
 
+									<div class="mb-3">
+										<label for="password" class="form-label">Password<span
+												class="asterisks">*</span></label>
+										<div class="input-group ">
 
-
-
-									<div class="mt-5 row">
-										<div class="col-sm-6">
-											<label for="password" class="form-label">Password <span
-													class="asterisks">*</span></label>
-											<input type="password" class="form-control" id="password" name="password"
-												required>
+											<input class="form-control form-control-lg" type="password" id="password"
+												name="password" required />
+											<div class="input-group-append">
+												<button type="button"
+													style="border-radius: 0px !important; height: 100%;"
+													class="btn btn-light" id="togglePassword">
+													<img class="toggle-icon" style="width: 20px;"
+														src="{% static 'img/eye.svg' %}" alt="">
+													<img class="toggle-icon" style="width: 20px;"
+														src="{% static 'img/eye-slash.svg' %}" alt="">
+												</button>
+											</div>
 										</div>
 
-										<div class="col-sm-6">
-											<label for="password_confirmation" class="form-label">Confirm Password
-												<span class="asterisks">*</span></label>
-											<input type="password" class="form-control" id="password_confirmation"
-												name="password_confirmation" required>
-										</div>
+										<div id="errorMessage" class="alert alert-danger" role="alert"
+											style="display: none;"></div>
+
 									</div>
 
-									<div id="errorMessage" class="alert alert-danger" role="alert"
-										style="display: none;"></div>
 
-									<!-- Submit button with loading state -->
+
+									<div class="mb-3">
+										<label for="password_confirmation" class="form-label">Confirm Password<span
+												class="asterisks">*</span></label>
+										<div class="input-group ">
+
+											<input class="form-control form-control-lg" type="password"
+												id="password_confirmation" name="password_confirmation" required />
+											<div class="input-group-append">
+												<button type="button"
+													style="border-radius: 0px !important; height: 100%;"
+													class="btn btn-light" id="toggleConfirmPassword">
+													<img class="toggle-icon" style="width: 20px;"
+														src="{% static 'img/eye.svg' %}" alt="">
+													<img class="toggle-icon" style="width: 20px;"
+														src="{% static 'img/eye-slash.svg' %}" alt="">
+												</button>
+											</div>
+										</div>
+
+									</div>
+
+
+
 									<div class="d-grid gap-2 mt-3">
 										<button id="submitBtn" type="submit" class="btn btn-lg btn-primary">
 											<span id="submitText">Sign up</span>
@@ -253,6 +280,8 @@
 												class="spinner-border spinner-border-sm loading-spinner"></span>
 										</button>
 									</div>
+
+
 								</form>
 
 								<div class="text-center mt-3">
@@ -307,6 +336,52 @@
 			}
 		});
 	</script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const togglePassword = document.getElementById("togglePassword");
+			const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+			const passwordInput = document.querySelector("input[name='password']");
+			const passwordConfirmInput = document.querySelector("input[name='password_confirmation']");
+			const eyeIcons = togglePassword.querySelectorAll(".toggle-icon");
+			const eyeIconsConfirm = toggleConfirmPassword.querySelectorAll(".toggle-icon");
+
+			togglePassword.addEventListener("click", function () {
+				// Toggle password visibility
+				if (passwordInput.type === "password") {
+					passwordInput.type = "text";
+				} else {
+					passwordInput.type = "password";
+				}
+
+				// Toggle icons
+				eyeIcons.forEach(icon => {
+					icon.style.display = icon.style.display === "none" ? "inline" : "none";
+				});
+			});
+
+			toggleConfirmPassword.addEventListener("click", function () {
+				// Toggle password visibility
+				if (passwordConfirmInput.type === "password") {
+					passwordConfirmInput.type = "text";
+				} else {
+					passwordConfirmInput.type = "password";
+				}
+
+				// Toggle icons
+				eyeIconsConfirm.forEach(icon => {
+					icon.style.display = icon.style.display === "none" ? "inline" : "none";
+				});
+			});
+
+			// Ensure only one icon is visible at the start
+			eyeIcons[1].style.display = "none";
+			eyeIconsConfirm[1].style.display = "none";
+		});
+	</script>
+
+
+	{% include 'dashboard/_components/live_chat_whatsapp_widget.html' %}
 </body>
 
 </html>

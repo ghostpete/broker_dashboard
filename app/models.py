@@ -12,8 +12,6 @@ import string
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
-
 # Create your models here.
 
 PAYMENT_TYPES = [
@@ -244,6 +242,9 @@ class Investment(models.Model):
     class Meta:
         verbose_name = "Investment"
         verbose_name_plural = "Investments"
+
+    def __str__(self):
+        return f"{self.user.email} ---- {self.investment_type}"
 
 class AdminPaymentMethod(models.Model):
     

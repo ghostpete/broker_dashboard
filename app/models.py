@@ -68,7 +68,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     capital = models.DecimalField(verbose_name="Capital", max_digits=12, decimal_places=2, default=0.00)
     roi = models.DecimalField(verbose_name="ROI", max_digits=12, decimal_places=2, default=0.00)
     bonus = models.DecimalField(verbose_name="Bonus", max_digits=12, decimal_places=2, default=0.00)
-    investment = models.DecimalField(verbose_name="Bonus", max_digits=12, decimal_places=2, default=0.00)
+    investment = models.DecimalField(verbose_name="Investment", max_digits=12, decimal_places=2, default=0.00)
     # program_bonus = models.DecimalField(verbose_name="Bonus", max_digits=12, decimal_places=2, default=0.00)
 
     program_type = models.CharField(max_length=100, blank=True, null=True, choices=PROGRAM_TYPES, default="Short-Term")
